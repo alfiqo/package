@@ -68,7 +68,11 @@ class PackageController extends Controller
      */
     public function show($id)
     {
-        //
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'packages data',
+            'data'    => Package::find($id)
+        ],200);
     }
 
     /**
