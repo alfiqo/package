@@ -7,5 +7,6 @@ use Jenssegers\Mongodb\Eloquent\Model;
 
 class Package extends Model
 {
-    protected $fillable= ['transaction_id'];
+    protected $primaryKey = 'transaction_id';
+    protected $guarded = [];
 }

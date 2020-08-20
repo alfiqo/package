@@ -31,13 +31,13 @@ class PackageController extends Controller
         $status = "error";
         $message = "";
         $code = 500;
-        
+
         $validator = Validator::make($request->json()->all(), [
             'transaction_id' => 'required|unique:packages',
             'customer_name' => 'required|max:50',
             'customer_code' => 'required|min:5',
             'transaction_order' => 'required|numeric|digits:3',
-            'customer_attribute.*' =>'required',
+            'customer_attribute.*' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -45,7 +45,7 @@ class PackageController extends Controller
             $message = $errors;
         } else {
             $package = Package::create($request->json()->all());
-            if($package) {
+            if ($package) {
                 $status = "success";
                 $message = "insert successfully";
                 $code = 200;
@@ -53,7 +53,7 @@ class PackageController extends Controller
                 $message = 'insert failed';
             }
         }
-        
+
         return response()->json([
             'status' => $status,
             'message' => $message,
@@ -63,38 +63,91 @@ class PackageController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Package  $package
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Package $package)
     {
         return response()->json([
             'status'  => 'success',
             'message' => 'packages data',
-            'data'    => Package::find($id)
-        ],200);
+            'data'    => $package
+        ], 200);
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \App\Package  $package
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Package $package)
     {
-        //
+        $status = "error";
+        $message = "";
+        $code = 500;
+
+        $validator = Validator::make($request->json()->all(), [
+            'transaction_id' => 'required|unique:packages,transaction_id,' . $request->json()->get('transaction_id') . ',transaction_id',
+            'customer_name' => 'required|max:50',
+            'customer_code' => 'required|min:5',
+            'transaction_order' => 'required|numeric|digits:3',
+            'customer_attribute.*' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors();
+            $message = $errors;
+        } else {
+            $data = $request->json()->all();
+            unset($data['_id']);
+            unset($data['transaction_id']);
+            
+            if ($request->method() === "PUT") {
+                $package->update($data);
+            } else {
+                $package->fill($data);
+                $package->save();
+            }
+
+            if ($package) {
+                $status = "success";
+                $message = "update successfully";
+                $code = 200;
+            } else {
+                $status = "error";
+                $message = "update failed";
+                $code = 409;
+            }
+        }
+
+        return response()->json([
+            'status' => $status,
+            'message' => $message,
+        ], $code);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  \App\Package  $package
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Package $package)
     {
-        //
+        $status = "error";
+        $message = "delete failed";
+        $code = 409;
+
+        if ($package->delete()) {
+            $status = "success";
+            $message = "delete successfuly";
+            $code = 200;
+        }
+        return response()->json([
+            'status' => $status,
+            'message' => $message,
+        ], $code);
     }
 }
