@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\PackageCollection;
 use App\Package;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class PackageController extends Controller
 {
@@ -27,7 +28,36 @@ class PackageController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $status = "error";
+        $message = "";
+        $code = 500;
+        
+        $validator = Validator::make($request->json()->all(), [
+            'transaction_id' => 'required|unique:packages',
+            'customer_name' => 'required|max:50',
+            'customer_code' => 'required|min:5',
+            'transaction_order' => 'required|numeric|digits:3',
+            'customer_attribute.*' =>'required',
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors();
+            $message = $errors;
+        } else {
+            $package = Package::create($request->json()->all());
+            if($package) {
+                $status = "success";
+                $message = "insert successfully";
+                $code = 200;
+            } else {
+                $message = 'insert failed';
+            }
+        }
+        
+        return response()->json([
+            'status' => $status,
+            'message' => $message,
+        ], $code);
     }
 
     /**

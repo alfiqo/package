@@ -14,6 +14,10 @@ class PackageCollection extends ResourceCollection
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return [
+            'status'  => 'success',
+            'message' => 'packages data',
+            'data'    => parent::toArray($request),
+        ];
     }
 }
