@@ -14,6 +14,7 @@ class CreatePackagesTable extends Migration
     public function up()
     {
         Schema::create('packages', function ($collection) {
+            $collection->index('transaction_id');
             $collection->uniqe('transaction_id');
         });
     }
