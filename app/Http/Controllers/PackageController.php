@@ -56,8 +56,7 @@ class PackageController extends Controller
 
         return response()->json([
             'status' => $status,
-            'message' => $message,
-            'data' => $package
+            'message' => $message
         ], $code);
     }
 
